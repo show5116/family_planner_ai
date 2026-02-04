@@ -8,14 +8,14 @@ Family Planner Ecosystem을 위한 AI Agent 서비스입니다.
 
 ## 실행 방법
 
-1. 의존성 설치
+1. 의존성 설치 및 동기화
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 2. 서버 실행
 ```bash
-uvicorn main:app --reload
+uv run uvicorn main:app --reload
 ```
 
 ## 기능
