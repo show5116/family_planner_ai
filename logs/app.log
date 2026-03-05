@@ -7,3 +7,14 @@
 2026-03-05 21:52:04.982 | INFO     | logging:callHandlers:1737 - Waiting for application shutdown.
 2026-03-05 21:52:04.984 | INFO     | logging:callHandlers:1737 - Application shutdown complete.
 2026-03-05 21:52:04.984 | INFO     | logging:callHandlers:1737 - Finished server process [18900]
+2026-03-05 22:01:57.250 | INFO     | app.core.logger:setup_logging:72 - Logging is configured via Loguru!
+2026-03-05 22:01:57.251 | INFO     | logging:callHandlers:1737 - Application startup complete.
+2026-03-05 22:01:57.251 | INFO     | logging:callHandlers:1737 - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-03-05 22:03:13.834 | ERROR    | app.core.handlers:custom_app_exception_handler:12 - AppException at /error-test: This is a test bad request error - {'field': 'test_field'}
+2026-03-05 22:03:13.835 | INFO     | logging:callHandlers:1737 - 127.0.0.1:8032 - "GET /error-test HTTP/1.1" 400
+2026-03-05 22:03:51.234 | WARNING  | app.core.handlers:http_exception_handler:45 - HTTP exception 404 at /not-found: Not Found
+2026-03-05 22:03:51.234 | INFO     | logging:callHandlers:1737 - 127.0.0.1:6656 - "GET /not-found HTTP/1.1" 404
+2026-03-05 22:04:14.178 | INFO     | logging:callHandlers:1737 - Shutting down
+2026-03-05 22:04:14.292 | INFO     | logging:callHandlers:1737 - Waiting for application shutdown.
+2026-03-05 22:04:14.293 | INFO     | logging:callHandlers:1737 - Application shutdown complete.
+2026-03-05 22:04:14.293 | INFO     | logging:callHandlers:1737 - Finished server process [76780]
