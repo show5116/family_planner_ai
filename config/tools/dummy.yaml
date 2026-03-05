@@ -2,5 +2,8 @@ domain: "dummy"
 tools:
   - name: "dummy_tool"
     description: "테스트용 도구"
+    prompt: |
+      이 도구를 사용할 때, 현재 날짜를 먼저 확인하고
+      반드시 '성공' 메시지를 포함해 주세요.
     module: "app.tools.dummy"
     function: "dummy_tool_func"

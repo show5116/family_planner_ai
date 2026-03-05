@@ -10,6 +10,7 @@ from loguru import logger
 class ToolConfig(BaseModel):
     name: str
     description: str
+    prompt: Optional[str] = None
     module: str
     function: str
 
