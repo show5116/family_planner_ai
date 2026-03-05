@@ -1,5 +1,6 @@
 from typing import Callable, Any, Dict
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, SystemMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 from loguru import logger
 from app.state.state import FamilyPlannerState
 from app.core.yaml_config import registry as yaml_registry, AgentConfig
@@ -12,23 +13,35 @@ def create_agent_node(agent_config: AgentConfig) -> Callable[[FamilyPlannerState
         """
         Dynamically generated agent node for {agent_config.name}.
         """
-        # In a real implementation, you would initialize the LLM here using agent_config.llm_model,
-        # bind tools using agent_config.tools (loading them via yaml_registry.get_tool),
-        # and prepend the system prompt to the messages.
+        # LLM Initialization
+        if "gemini" in agent_config.llm_model.lower():
+            llm = ChatGoogleGenerativeAI(model=agent_config.llm_model)
+        else:
+            # Fallback or generic initialization could go here. 
+            # For now, if not gemini, raise an error or fallback to mock.
+            logger.error(f"Unsupported LLM model: {agent_config.llm_model}")
+            return {"messages": [AIMessage(content="에러: 지원하지 않는 LLM 모델입니다.")]}
+            
+        # Tool Binding (Placeholder for actual tool loading logic)
+        # bound_llm = llm.bind_tools(loaded_tools)
         
-        # For now, we simulate the LLM response utilizing the dynamic configuration.
-        response_content = (
-            f"[Dynamic Agent Execution] Name: {agent_config.name}\n"
-            f"Desc: {agent_config.description}\n"
-            f"Model: {agent_config.llm_model}\n"
-            f"System Prompt: {agent_config.system_prompt.strip()}\n"
-            f"Tools: {agent_config.tools}\n"
-            f"--- State Messages Summary ---\n"
-            f"Received {len(state.get('messages', []))} messages in state."
-        )
+        # Prepare messages: Prepend SystemPrompt
+        messages = state.get("messages", [])
+        system_message = SystemMessage(content=agent_config.system_prompt)
         
-        logger.debug(f"Executing dynamic agent node: {agent_config.name}")
-        return {"messages": [AIMessage(content=response_content)]}
+        # We invoke the LLM with the system prompt followed by the conversation history
+        invoke_messages = [system_message] + messages
+        
+        logger.debug(f"Executing dynamic agent node '{agent_config.name}' with model '{agent_config.llm_model}'")
+        
+        try:
+            # Invoke the LLM
+            # In a real tool-bound scenario, you'd use bound_llm.invoke
+            response = llm.invoke(invoke_messages)
+            return {"messages": [response]}
+        except Exception as e:
+            logger.exception(f"Failed to invoke LLM in agent '{agent_config.name}': {e}")
+            return {"messages": [AIMessage(content="죄송합니다. 요청을 처리하는 중에 문제가 발생했습니다.")]}
     
     # Update the dynamic function's metadata for better debugging
     dynamic_agent.__name__ = f"{agent_config.name}_node"
