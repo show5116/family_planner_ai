@@ -4,27 +4,27 @@ from app.graph.workflow import create_graph
 
 router = APIRouter()
 
-# Instantiate the graph once (or per request if state needs it, but usually the graph definition is static)
+# 그래프를 한 번 인스턴스화합니다 (상태에 따라 매번 생성해야 할 수도 있지만, 구조가 정적이라면 한 번만 생성).
 graph = create_graph()
 
 @router.post("/chat", response_model=PlannerResponse)
 async def chat_with_planner(request: PlannerRequest):
     """
-    Interact with the Family Planner Agent.
+    Family Planner 에이전트와 상호작용합니다.
     """
     try:
-        # Initial state for the graph
+        # 그래프를 위한 초기 상태
         initial_state = {
             "messages": [("user", request.message)],
-            "user_preferences": {},  # Would load from DB in real app
+            "user_preferences": {},  # 실제 앱에서는 DB에서 불러옵니다.
             "plan": ""
         }
         
-        # Invoke the graph
-        # Note: In a real async environment, use ainvoke if supported/configured
+        # 그래프 실행
+        # 참고: 실제 비동기 환경에서는 ainvoke를 사용합니다.
         result = await graph.ainvoke(initial_state)
         
-        # Extract the last message content
+        # 마지막 메시지 내용 추출
         last_message = result["messages"][-1]
         response_content = last_message.content if hasattr(last_message, "content") else str(last_message)
         

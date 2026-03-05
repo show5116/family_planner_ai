@@ -1,15 +1,15 @@
-from typing import TypedDict, Annotated, List, Union
+from typing import TypedDict, Annotated, List
 from langgraph.graph.message import add_messages
 from langchain_core.messages import BaseMessage
 
 class FamilyPlannerState(TypedDict):
     """
-    Represents the state of the Family Planner agent.
+    Family Planner 에이전트의 상태를 나타냅니다.
     
     Attributes:
-        messages: A list of messages in the conversation history.
-        plan: The current plan being developed.
-        user_preferences: Stored preferences for the user.
+        messages: 대화 기록 목록입니다.
+        plan: 현재 개발 중인 계획입니다.
+        user_preferences: 사용자의 저장된 선호도 정보입니다.
     """
     messages: Annotated[List[BaseMessage], add_messages]
     plan: str

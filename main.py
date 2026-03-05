@@ -1,17 +1,26 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from app.core.config import settings
+from app.core.logger import setup_logging
+from loguru import logger
 from app.api.routers import planner
 
-app = FastAPI(title=settings.PROJECT_NAME)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setup_logging()
+    yield
+
+app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Family Planner AI", "status": "running"}
+    logger.info("Root endpoint accessed")
+    return {"message": "Family Planner AI 에이전트에 오신 것을 환영합니다", "status": "running"}
 
-# Include routers
+# 라우터 포함
 app.include_router(planner.router, prefix="/api/v1/planner", tags=["planner"])
 
 if __name__ == "__main__":
     import uvicorn
-    # Reload for development
+    # 개발을 위한 리로드 설정
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,0 +1,9 @@
+2026-03-05 21:50:40.837 | INFO     | app.core.logger:setup_logging:72 - Logging is configured via Loguru!
+2026-03-05 21:50:40.838 | INFO     | logging:callHandlers:1737 - Application startup complete.
+2026-03-05 21:50:40.838 | INFO     | logging:callHandlers:1737 - Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-03-05 21:51:41.329 | INFO     | main:read_root:17 - Root endpoint accessed
+2026-03-05 21:51:41.331 | INFO     | logging:callHandlers:1737 - 127.0.0.1:1443 - "GET / HTTP/1.1" 200
+2026-03-05 21:52:04.873 | INFO     | logging:callHandlers:1737 - Shutting down
+2026-03-05 21:52:04.982 | INFO     | logging:callHandlers:1737 - Waiting for application shutdown.
+2026-03-05 21:52:04.984 | INFO     | logging:callHandlers:1737 - Application shutdown complete.
+2026-03-05 21:52:04.984 | INFO     | logging:callHandlers:1737 - Finished server process [18900]
