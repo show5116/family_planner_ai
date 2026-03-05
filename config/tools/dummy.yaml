@@ -1,0 +1,6 @@
+domain: "dummy"
+tools:
+  - name: "dummy_tool"
+    description: "테스트용 도구"
+    module: "app.tools.dummy"
+    function: "dummy_tool_func"

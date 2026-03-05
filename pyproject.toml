@@ -12,5 +12,6 @@ dependencies = [
     "loguru>=0.7.3",
     "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
+    "pyyaml>=6.0.3",
     "uvicorn>=0.40.0",
 ]
