@@ -35,12 +35,16 @@ def setup_logging():
     # Remove all default handlers
     logger.remove()
 
-    # Define common format
+    # Define common format including request_id
     log_format = (
         "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
         "<level>{level: <8}</level> | "
+        "<magenta>{extra[request_id]}</magenta> | "
         "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
     )
+
+    # Set default extra attributes
+    logger.configure(extra={"request_id": "-"})
 
     # Add console handler
     logger.add(

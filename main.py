@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.core.logger import setup_logging
 from app.core.handlers import setup_exception_handlers
 from app.core.exceptions import BadRequestException
+from app.core.middleware import RequestTracingMiddleware
 from loguru import logger
 from app.api.routers import planner
 
@@ -14,6 +15,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
+# Add Middlewares
+app.add_middleware(RequestTracingMiddleware)
+
 # Register all global exception handlers
 setup_exception_handlers(app)
 
@@ -21,6 +25,11 @@ setup_exception_handlers(app)
 def read_root():
     logger.info("Root endpoint accessed")
     return {"message": "Family Planner AI 에이전트에 오신 것을 환영합니다", "status": "running"}
+
+@app.get("/health")
+def health_check():
+    """Endpoint for infrastructure and external services to check health status."""
+    return {"status": "ok"}
 
 @app.get("/error-test")
 def test_error():

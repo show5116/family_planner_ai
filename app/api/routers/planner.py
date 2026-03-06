@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.models.schemas import PlannerRequest, PlannerResponse
+from app.core.security import verify_api_key
 from app.graph.workflow import create_graph
 
 router = APIRouter()
@@ -8,7 +9,10 @@ router = APIRouter()
 graph = create_graph()
 
 @router.post("/chat", response_model=PlannerResponse)
-async def chat_with_planner(request: PlannerRequest):
+async def chat_with_planner(
+    request: PlannerRequest, 
+    api_key: str = Depends(verify_api_key)
+):
     """
     Family Planner 에이전트와 상호작용합니다.
     """
