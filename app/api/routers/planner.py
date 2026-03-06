@@ -30,8 +30,17 @@ async def chat_with_planner(
         
         # 마지막 메시지 내용 추출
         last_message = result["messages"][-1]
-        response_content = last_message.content if hasattr(last_message, "content") else str(last_message)
+        raw_content = last_message.content if hasattr(last_message, "content") else str(last_message)
         
+        # LangChain Gemini Integration 종종 문자열 대신 [{'type': 'text', 'text': '...'}] 리스트를 반환함
+        if isinstance(raw_content, list):
+            response_content = "".join([
+                item.get("text", "") if isinstance(item, dict) else str(item)
+                for item in raw_content
+            ])
+        else:
+            response_content = str(raw_content)
+            
         return PlannerResponse(
             response=response_content,
             plan=result.get("plan")

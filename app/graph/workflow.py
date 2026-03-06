@@ -41,26 +41,27 @@ def create_graph():
         logger.warning("No tools loaded for ToolNode.")
 
     # 4. 엣지 정의 (제어 흐름 및 조건부 라우팅)
-    # 현재는 메인 엔트리 포인트인 'planner' 에이전트를 기준으로 하드 코딩하지만,
-    # 차후 여러 에이전트 다중 라우팅 로직으로 변경될 수 있습니다.
-    if "planner" in agent_nodes:
-        # 시작 -> 플래너
-        graph_builder.add_edge(START, "planner")
+    # 현재는 메인 엔트리 포인트인 'supervisor' 대문 에이전트를 기준으로 지정합니다.
+    main_agent = "supervisor"
+    
+    if main_agent in agent_nodes:
+        # 시작 -> 대문 에이전트
+        graph_builder.add_edge(START, main_agent)
         
-        # 플래너 -> 도구 호줄 여부 판단
+        # 메인 에이전트 -> 도구 호출 여부 판단
         # 언어 모델이 도구 호출(tool_calls)을 반환했다면 'tools' 노드로, 아니라면 'END'로 빠집니다.
         if all_loaded_tools:
             graph_builder.add_conditional_edges(
-                "planner",
+                main_agent,
                 tools_condition,
             )
-            # 도구 노드 실행 후 -> 다시 플래너 언어 모델로 돌아가서 후속 판단
-            graph_builder.add_edge("tools", "planner")
+            # 도구 노드 실행 후 -> 다시 메인 언어 모델로 돌아가서 후속 판단
+            graph_builder.add_edge("tools", main_agent)
         else:
             # 도구가 아예 없다면 바로 END로 연결
-            graph_builder.add_edge("planner", END)
+            graph_builder.add_edge(main_agent, END)
     else:
-        logger.warning("'planner' node not found in yaml. The graph edges were not initialized.")
+        logger.warning(f"'{main_agent}' node not found in yaml. The graph edges were not initialized.")
 
     # 5. 그래프 컴파일
     graph = graph_builder.compile()
