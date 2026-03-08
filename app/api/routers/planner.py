@@ -3,6 +3,7 @@ from app.models.schemas import PlannerRequest, PlannerResponse
 from app.core.security import verify_api_key
 from app.graph.workflow import create_graph
 from app.core.redis import redis_manager
+import uuid
 
 router = APIRouter()
 
@@ -21,15 +22,14 @@ async def chat_with_planner(
         # Create or Get the compiled workflow with the Redis checkpointer
         graph = create_graph(checkpointer=redis_manager.checkpointer)
         
+        # Room ID 생성 로직 (없으면 UUID 부여)
+        current_room_id = request.room_id if request.room_id else str(uuid.uuid4())
+        
         # Room ID and User ID combined to form thread uniqueness
-        thread_id = f"{request.user_id}_{request.room_id}"
+        thread_id = f"{request.user_id}_{current_room_id}"
         config = {"configurable": {"thread_id": thread_id}}
         
         # Load existing state if available
-        # But we only need to pass messages for a new turn. 
-        # The checkpointer automatically loads previous history and merges the new input.
-        # However, for a user's first query in a thread, `user_preferences` and `plan` may need initializing.
-        
         current_state = await graph.aget_state(config)
         
         if current_state.values:
@@ -67,6 +67,7 @@ async def chat_with_planner(
             
         return PlannerResponse(
             response=response_content,
+            room_id=current_room_id,
             plan=result.get("plan")
         )
             
