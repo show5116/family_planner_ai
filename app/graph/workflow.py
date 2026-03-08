@@ -8,6 +8,15 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from typing import Optional
 from loguru import logger
 
+def route_start(state: FamilyPlannerState):
+    """결정된 초기 에이전트(current_agent)로 라우팅합니다."""
+    # 만약 지정되지 않았다면 supervisor로 기본 처리
+    return state.get("current_agent", "supervisor")
+
+def route_tools(state: FamilyPlannerState):
+    """도구 실행 후 원래 호출했던 에이전트로 되돌아갑니다."""
+    return state.get("current_agent", "supervisor")
+
 def create_graph(checkpointer: Optional[BaseCheckpointSaver] = None):
     """
     Family Planner를 위한 LangGraph 워크플로우를 생성합니다.
@@ -43,27 +52,24 @@ def create_graph(checkpointer: Optional[BaseCheckpointSaver] = None):
         logger.warning("No tools loaded for ToolNode.")
 
     # 4. 엣지 정의 (제어 흐름 및 조건부 라우팅)
-    # 현재는 메인 엔트리 포인트인 'supervisor' 대문 에이전트를 기준으로 지정합니다.
-    main_agent = "supervisor"
     
-    if main_agent in agent_nodes:
-        # 시작 -> 대문 에이전트
-        graph_builder.add_edge(START, main_agent)
-        
-        # 메인 에이전트 -> 도구 호출 여부 판단
-        # 언어 모델이 도구 호출(tool_calls)을 반환했다면 'tools' 노드로, 아니라면 'END'로 빠집니다.
+    # 시작 -> 동적 에이전트 분기
+    graph_builder.add_conditional_edges(START, route_start)
+    
+    # 각 에이전트 노드 -> 도구 호출 여부 판단 / END
+    for agent_name in agent_nodes.keys():
         if all_loaded_tools:
             graph_builder.add_conditional_edges(
-                main_agent,
+                agent_name,
                 tools_condition,
             )
-            # 도구 노드 실행 후 -> 다시 메인 언어 모델로 돌아가서 후속 판단
-            graph_builder.add_edge("tools", main_agent)
         else:
-            # 도구가 아예 없다면 바로 END로 연결
-            graph_builder.add_edge(main_agent, END)
-    else:
-        logger.warning(f"'{main_agent}' node not found in yaml. The graph edges were not initialized.")
+            # 도구가 아예 없다면 다이렉트로 END
+            graph_builder.add_edge(agent_name, END)
+
+    # 도구 노드 실행 후 -> 원래 불렀던 에이전트 노드로 복귀
+    if all_loaded_tools:
+        graph_builder.add_conditional_edges("tools", route_tools)
 
     # 5. 그래프 컴파일
     if checkpointer:

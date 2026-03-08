@@ -5,6 +5,7 @@ class PlannerRequest(BaseModel):
     message: str
     user_id: str = "default_user"
     room_id: str = "default_room"
+    target_agent: Optional[str] = "supervisor"
 
 class PlannerResponse(BaseModel):
     response: str

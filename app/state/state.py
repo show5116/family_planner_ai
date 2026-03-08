@@ -10,7 +10,9 @@ class FamilyPlannerState(TypedDict):
         messages: 대화 기록 목록입니다.
         plan: 현재 개발 중인 계획입니다.
         user_preferences: 사용자의 저장된 선호도 정보입니다.
+        current_agent: 현재 메시지를 처리할 에이전트 이름입니다.
     """
     messages: Annotated[List[BaseMessage], add_messages]
     plan: str
     user_preferences: dict
+    current_agent: str

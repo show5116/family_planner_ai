@@ -34,16 +34,18 @@ async def chat_with_planner(
         
         if current_state.values:
             # We already have a state for this thread, so we only need to append the new message
-            # The structure for resuming should just send the list of new messages
+            # The structure for resuming should just send the list of new messages and the chosen agent
             new_state_input = {
-                "messages": [("user", request.message)]
+                "messages": [("user", request.message)],
+                "current_agent": request.target_agent
             }
         else:
             # First time running this thread, we need to provide the complete initial state schema
             new_state_input = {
                 "messages": [("user", request.message)],
                 "user_preferences": {},  # 실제 앱에서는 DB에서 불러옵니다.
-                "plan": ""
+                "plan": "",
+                "current_agent": request.target_agent
             }
         
         # 그래프 실행
