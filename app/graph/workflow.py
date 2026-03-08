@@ -4,9 +4,11 @@ from app.state.state import FamilyPlannerState
 from app.agents.registry import get_all_agent_nodes
 from app.core.yaml_config import registry as yaml_registry
 from app.tools.loader import load_tool_from_config
+from langgraph.checkpoint.base import BaseCheckpointSaver
+from typing import Optional
 from loguru import logger
 
-def create_graph():
+def create_graph(checkpointer: Optional[BaseCheckpointSaver] = None):
     """
     Family Planner를 위한 LangGraph 워크플로우를 생성합니다.
     """
@@ -64,5 +66,11 @@ def create_graph():
         logger.warning(f"'{main_agent}' node not found in yaml. The graph edges were not initialized.")
 
     # 5. 그래프 컴파일
-    graph = graph_builder.compile()
+    if checkpointer:
+        graph = graph_builder.compile(checkpointer=checkpointer)
+        logger.info("Graph compiled with checkpointer.")
+    else:
+        graph = graph_builder.compile()
+        logger.info("Graph compiled WITHOUT checkpointer.")
+        
     return graph

@@ -8,10 +8,19 @@ from app.core.middleware import RequestTracingMiddleware
 from loguru import logger
 from app.api.routers import planner
 
+from app.core.redis import redis_manager
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
+    
+    # Redis 연결 시작
+    await redis_manager.connect()
+    
     yield
+    
+    # 앱 종료 시 Redis 연결 해제
+    await redis_manager.disconnect()
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 

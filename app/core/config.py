@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Family Planner AI"
     API_V1_STR: str = "/api/v1"
     APP_API_KEY: str = "change_me_to_a_secure_random_string_in_production"
+    REDIS_URL: str = "redis://localhost:6379/0"
     # OPENAI_API_KEY/GEMINI_API_KEY 등은 환경 변수에서 자동으로 읽어옵니다.
     
     class Config:

@@ -3,7 +3,8 @@ from typing import List, Optional
 
 class PlannerRequest(BaseModel):
     message: str
-    user_id: Optional[str] = "default_user"
+    user_id: str = "default_user"
+    room_id: str = "default_room"
 
 class PlannerResponse(BaseModel):
     response: str
