@@ -13,6 +13,9 @@ class RedisManager:
         """Initialize Redis connection and checkpointer."""
         logger.info(f"Connecting to Redis at {settings.REDIS_URL}...")
         try:
+            # Create a raw Redis connection first
+            self.connection = Redis.from_url(settings.REDIS_URL)
+            
             # We use an async context manager hook provided by LangGraph for Redis
             self._context_manager = AsyncRedisSaver.from_conn_string(settings.REDIS_URL)
             self.checkpointer = await self._context_manager.__aenter__()
