@@ -1,4 +1,4 @@
-domain: "read_agent_knowledge"
+domain: "knowledge"
 tools:
   - name: "read_agent_knowledge"
     description: "Family Planner AI 앱의 전체 기능 개요 및 도메인 지식이 담긴 AGENT_KNOWLEDGE.md 문서를 읽어옵니다. 사용자가 앱의 정체성이나 기능에 대해 물어볼 때 가장 먼저 호출하여 답을 찾으세요."

@@ -46,7 +46,7 @@ def test_error():
     raise BadRequestException(message="This is a test bad request error", details={"field": "test_field"})
 
 # 라우터 포함
-app.include_router(planner.router, prefix="/api/v1/planner", tags=["planner"])
+app.include_router(planner.router, prefix="/api/v1/agent", tags=["agent"])
 
 if __name__ == "__main__":
     import uvicorn
