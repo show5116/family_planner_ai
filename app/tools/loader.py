@@ -21,16 +21,19 @@ def load_tool_from_config(tool_config: ToolConfig) -> StructuredTool:
         if tool_config.prompt:
             full_description += f"\n\n[지시사항]\n{tool_config.prompt}"
             
+        import inspect
+        is_async = inspect.iscoroutinefunction(func)
+        
         # Create a LangChain tool from the function.
-        # It relies on python type hints of the underlying function.
-        # Make sure the target functions have concrete type hints!
+        # Check if the function is async to correctly map it to the 'coroutine' param.
         langchain_tool = StructuredTool.from_function(
-            func=func,
+            func=func if not is_async else None,
+            coroutine=func if is_async else None,
             name=tool_config.name,
             description=full_description,
         )
         
-        logger.debug(f"Successfully loaded and wrapped tool: '{tool_config.name}' from {tool_config.module}.{tool_config.function}")
+        logger.debug(f"Successfully loaded and wrapped tool: '{tool_config.name}' from {tool_config.module}.{tool_config.function} (Async: {is_async})")
         return langchain_tool
         
     except ImportError as e:

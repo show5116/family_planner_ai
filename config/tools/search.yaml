@@ -1,0 +1,19 @@
+domain: "search"
+tools:
+  - name: "web_search"
+    description: "Tavily Search API를 사용하여 현재 시장 상황, 거시경제 지표 변동 이유, 최신 뉴스 등을 실시간으로 검색합니다."
+    module: "app.tools.search"
+    function: "web_search"
+    prompt: |
+      투자에 영향을 미치는 글로벌 뉴스, 증시 마감 시황, 또는 특정 경제 지표(CPI, FOMC 등) 발표 결과를 검색할 때 사용하세요.
+    parameters:
+      type: "object"
+      properties:
+        query:
+          type: "string"
+          description: "검색할 주제나 키워드 (예: '코스피 하락 원인', '나스닥 마감 시황', '최신 FOMC 결과')"
+        category:
+          type: "string"
+          enum: ["macro", "global", "domestic", "general"]
+          description: "검색할 주제의 카테고리. macro(거시경제/채권/환율), global(해외증시), domestic(국내증시), general(기타)"
+      required: ["query"]
