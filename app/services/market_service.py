@@ -1,7 +1,7 @@
 import re
-import httpx
+import json
+from datetime import datetime, timezone
 from loguru import logger
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from app.graph.workflow import create_graph
 from app.core.redis import redis_manager
 from app.core.config import settings
@@ -72,36 +72,26 @@ async def trigger_agent_analysis(topic: str, instructions: str) -> str:
         logger.error(f"Failed to generate analysis from agent: {e}")
         return "브리핑을 생성하는 중 오류가 발생했습니다."
 
-@retry(
-    stop=stop_after_attempt(3), 
-    wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(httpx.RequestError)
-)
-async def push_to_nestjs(briefing_type: str, title: str, content: str):
+async def save_briefing_to_redis(briefing_type: str, title: str, content: str):
     """
-    작성 완료된 브리핑을 NestJS 서버에 전송합니다. 실패 시 최대 3번 재시도합니다.
+    작성 완료된 브리핑을 NestJS 서버와 공유 중인 Redis에 직접 저장합니다.
     """
-    # NOTE: URL needs to be configured based on NestJS location
-    webhook_url = "http://host.docker.internal:3000/api/market-briefing" 
-    headers = {
-        "Content-Type": "application/json",
-        "X-API-Key": settings.APP_API_KEY
-    }
+    redis_key = f"market_briefing:{briefing_type}"
     payload = {
-        "type": briefing_type,
         "title": title,
-        "content": content
+        "content": content,
+        "updated_at": datetime.now(timezone.utc).isoformat()
     }
     
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(webhook_url, json=payload, headers=headers)
-            if response.status_code in [200, 201]:
-                logger.info(f"Successfully pushed {briefing_type} briefing to NestJS.")
-            else:
-                logger.error(f"NestJS Webhook Failed ({response.status_code}): {response.text}")
+        if not redis_manager.connection:
+            logger.error("Redis connection not available for saving briefing.")
+            return
+            
+        await redis_manager.connection.set(redis_key, json.dumps(payload, ensure_ascii=False))
+        logger.info(f"Successfully saved {briefing_type} briefing to Redis key '{redis_key}'.")
     except Exception as e:
-        logger.error(f"Local request to NestJS failed: {e}")
+        logger.error(f"Failed to save {briefing_type} briefing to Redis: {e}")
 
 async def generate_macro_briefing():
     """
@@ -110,13 +100,20 @@ async def generate_macro_briefing():
     logger.info("Starting background execution: Macro Briefing")
     instructions = "현재 제공된 지표들(특히 금리, 환율, VIX 등)의 현재 변동 이유를 파악하고, 최신 경제 뉴스를 웹 검색하여 현재 거시경제 매크로 동향을 분석해 주세요."
     content = await trigger_agent_analysis("매크로(거시경제) 동향", instructions)
-    await push_to_nestjs("MACRO", "매크로 동향 현황 업데이트", content)
+    await save_briefing_to_redis("MACRO", "매크로 동향 현황 업데이트", content)
 
 async def generate_market_briefing():
     """
-    1일 1회(아침 7시): 시황 분석 (국내 및 뉴욕 증시)
+    1일 1회(아침 7시): 시황 분석 (국내 증시와 글로벌 증시를 각각 분리하여 생성 및 전송)
     """
-    logger.info("Starting background execution: Market Briefing")
-    instructions = "어제 하루 및 오늘 새벽 동안의 뉴욕 증시와 국내 증시의 마감 시황을 웹 검색하여 종합적으로 분석해 주세요."
-    content = await trigger_agent_analysis("국내 및 글로벌 증시 시황", instructions)
-    await push_to_nestjs("MARKET", "글로벌 증시 시황 업데이트", content)
+    logger.info("Starting background execution: Market Briefings (split)")
+    
+    # 1. 국내 증시 시황 분석 및 전송
+    dom_instructions = "어제 하루 동안의 코스피, 코스닥 등 국내 증시 마감 시황을 웹 검색하여 분석해 주세요. 해외 증시는 제외하고 오직 국내 증시 상황과 원인에 집중하세요."
+    dom_content = await trigger_agent_analysis("국내 증시 마감 시황", dom_instructions)
+    await save_briefing_to_redis("DOMESTIC_MARKET", "국내 증시 시황 업데이트", dom_content)
+    
+    # 2. 글로벌/뉴욕 증시 시황 분석 및 전송
+    glob_instructions = "오늘 새벽에 마감된 나스닥, S&P500 등 뉴욕 및 글로벌 증시 마감 시황을 웹 검색하여 분석해 주세요. 국내 증시는 제외하고 오직 글로벌 증시 상황과 원인에 집중하세요."
+    glob_content = await trigger_agent_analysis("글로벌 증시 마감 시황", glob_instructions)
+    await save_briefing_to_redis("GLOBAL_MARKET", "글로벌 증시 시황 업데이트", glob_content)
