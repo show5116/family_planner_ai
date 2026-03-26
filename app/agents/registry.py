@@ -41,8 +41,12 @@ def create_agent_node(agent_config: AgentConfig) -> Callable[[FamilyPlannerState
             bound_llm = llm
         
         # Prepare messages: Prepend SystemPrompt
+        import datetime
+        now_str = datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+        dynamic_system_prompt = agent_config.system_prompt.replace("{CURRENT_DATETIME}", now_str)
+        
         messages = state.get("messages", [])
-        system_message = SystemMessage(content=agent_config.system_prompt)
+        system_message = SystemMessage(content=dynamic_system_prompt)
         
         # We invoke the LLM with the system prompt followed by the conversation history
         invoke_messages = [system_message] + messages
@@ -52,7 +56,21 @@ def create_agent_node(agent_config: AgentConfig) -> Callable[[FamilyPlannerState
         try:
             # Invoke the LLM with bound tools
             response = bound_llm.invoke(invoke_messages)
-            return {"messages": [response]}
+            
+            updates = {"messages": [response]}
+            
+            # NLP to Task Intercept: if `create_task_draft` is called, dump to `plan` state
+            if hasattr(response, "tool_calls") and response.tool_calls:
+                for tc in response.tool_calls:
+                    if tc["name"] in ["task.create_task_draft", "create_task_draft"]:
+                        import json
+                        try:
+                            updates["plan"] = json.dumps(tc["args"], ensure_ascii=False)
+                            logger.info(f"Intercepted '{tc['name']}' tool call. Updating state 'plan'.")
+                        except Exception as json_e:
+                            logger.error(f"Failed to parse tool call args for plan: {json_e}")
+                            
+            return updates
         except Exception as e:
             logger.exception(f"Failed to invoke LLM in agent '{agent_config.name}': {e}")
             return {"messages": [AIMessage(content="죄송합니다. 요청을 처리하는 중에 문제가 발생했습니다.")]}

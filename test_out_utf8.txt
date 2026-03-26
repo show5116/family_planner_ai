@@ -1,0 +1,50 @@
+﻿uv : 2026-03-27 00:02:46.263 | INFO     | ap
+p.core.yaml_config:_load_all:62 - Loading ag
+ent and tool configurations from YAML...
+위치 줄:1 문자:1
++ uv run python test_nlp_to_task.py > test_o
+ut.txt 2>&1; cat test_out.t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: 
+    (2026-03-27 00:0...ns from YAML...:Str  
+  ing) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommand 
+   Error
+ 
+2026-03-27 00:02:46.269 | INFO     | app.cor
+e.yaml_config:_load_tools:79 - Loaded 4 tool
+s from config.
+2026-03-27 00:02:46.272 | INFO     | app.cor
+e.yaml_config:_load_agents:92 - Loaded 3 age
+nts from config.
+------- NLP TO TASK E2E TEST START -------
+[32m2026-03-27 00:02:46.479[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.logger[0m:[36msetup_logging[0m:[36m76[0m - [1mLogging is configured via Loguru![0m
+[32m2026-03-27 00:02:46.480[0m | [1mINFO    [0m | [35m-[0m | [36mmain[0m:[36mlifespan[0m:[36m18[0m - [1mInitializing Application...[0m
+[32m2026-03-27 00:02:46.480[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.redis[0m:[36mconnect[0m:[36m14[0m - [1mConnecting to Redis at redis://default:HLqVwxzAfxFPZrFdBoBvYrPDAbjuKosb@ballast.proxy.rlwy.net:33848...[0m
+[32m2026-03-27 00:02:47.588[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mIndex already exists, not overwriting.[0m
+[32m2026-03-27 00:02:47.852[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mIndex already exists, not overwriting.[0m
+[32m2026-03-27 00:02:48.117[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mIndex already exists, not overwriting.[0m
+[32m2026-03-27 00:02:48.118[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mRedis client is a standalone client[0m
+[32m2026-03-27 00:02:48.385[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.redis[0m:[36mconnect[0m:[36m22[0m - [1mSuccessfully connected to Redis and initialized checkpointer.[0m
+[32m2026-03-27 00:02:48.386[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mAdding job tentatively -- it will be properly scheduled when the scheduler starts[0m
+[32m2026-03-27 00:02:48.398[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mAdding job tentatively -- it will be properly scheduled when the scheduler starts[0m
+[32m2026-03-27 00:02:48.398[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.scheduler[0m:[36msetup_scheduler[0m:[36m33[0m - [1mBackground Job Scheduler initialized with jobs.[0m
+[32m2026-03-27 00:02:48.400[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mAdded job "generate_macro_briefing" to job store "default"[0m
+[32m2026-03-27 00:02:48.400[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mAdded job "generate_market_briefing" to job store "default"[0m
+[32m2026-03-27 00:02:48.400[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mScheduler started[0m
+[32m2026-03-27 00:02:48.401[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.scheduler[0m:[36mstart_scheduler[0m:[36m39[0m - [1mAPScheduler started successfully.[0m
+User Input: 이번 주 금요일까지 하민이 기저귀 쿠팡에서 주문하는 거 등록해 줘. 담당자는 아내로 지정해 주고, 수요일부터 알림 울리게 해.
+Sending POST request to /api/v1/planner/chat...
+[32m2026-03-27 00:02:48.411[0m | [1mINFO    [0m | [35m08713921-46a5-4f11-9a67-8d73bf6c87b0[0m | [36mapp.core.middleware[0m:[36mdispatch[0m:[36m14[0m - [1mIncoming request: POST /api/v1/planner/chat[0m
+[32m2026-03-27 00:02:48.412[0m | [33m[1mWARNING [0m | [35m08713921-46a5-4f11-9a67-8d73bf6c87b0[0m | [36mapp.core.handlers[0m:[36mhttp_exception_handler[0m:[36m45[0m - [33m[1mHTTP exception 404 at /api/v1/planner/chat: Not Found[0m
+[32m2026-03-27 00:02:48.413[0m | [1mINFO    [0m | [35m08713921-46a5-4f11-9a67-8d73bf6c87b0[0m | [36mapp.core.middleware[0m:[36mdispatch[0m:[36m21[0m - [1mCompleted request: POST /api/v1/planner/chat - Status: 404[0m
+[32m2026-03-27 00:02:48.415[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mHTTP Request: POST http://testserver/api/v1/planner/chat "HTTP/1.1 404 Not Found"[0m
+
+Status Code: 404
+Test FAILED: Unhandled status code. Body: {"error":{"code":"HTTP_EXCEPTION","message":"Not Found","details":null}}
+[32m2026-03-27 00:02:48.416[0m | [1mINFO    [0m | [35m-[0m | [36mmain[0m:[36mlifespan[0m:[36m28[0m - [1mShutting down Application...[0m
+[32m2026-03-27 00:02:48.416[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.scheduler[0m:[36mshutdown_scheduler[0m:[36m45[0m - [1mAPScheduler stopped.[0m
+[32m2026-03-27 00:02:48.416[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.redis[0m:[36mdisconnect[0m:[36m30[0m - [1mClosing Redis checkpointer connection...[0m
+[32m2026-03-27 00:02:48.416[0m | [1mINFO    [0m | [35m-[0m | [36mlogging[0m:[36mcallHandlers[0m:[36m1737[0m - [1mScheduler has been shut down[0m
+[32m2026-03-27 00:02:48.417[0m | [1mINFO    [0m | [35m-[0m | [36mapp.core.redis[0m:[36mdisconnect[0m:[36m32[0m - [1mRedis checkpointer closed.[0m
