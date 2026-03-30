@@ -6,18 +6,36 @@ from app.graph.workflow import create_graph
 from app.core.redis import redis_manager
 from app.core.config import settings
 
-# Placeholder function simulating reading 15 DB indicators
-def get_latest_market_indicators():
+async def get_latest_market_indicators() -> dict:
     """
-    TODO: 메인 NestJS 서버 API로부터 최신 15개 투자 지표를 가져오는 로직 구현 필요.
-    지금은 더미 데이터를 반환.
+    NestJS 쪽 RedisService.pushIndicatorHistory() 메서드에서 저장한 
+    가장 최신(0번 인덱스) 지표 데이터를 읽어옵니다.
     """
-    return {
-        "KOSPI": {"value": 2700.5, "change_rate": -0.5},
-        "NASDAQ": {"value": 16400.2, "change_rate": 1.2},
-        "USD_KRW": {"value": 1340.5, "change_rate": 0.1},
-        "US10Y": {"value": 4.2, "change_rate": -0.05}
-    }
+    res = {}
+    if not redis_manager.connection:
+        logger.warning("Redis connection not available. Returning empty indicators.")
+        return res
+        
+    symbols = [
+        "KOSPI", "KOSDAQ", "SP500", "NASDAQ", "NQ100", "DJI", "NIKKEI225", "TWSE",
+        "USD_KRW", "DXY", "GOLD_USD", "GOLD_KRW_SPOT", "SILVER", "WTI", "COPPER",
+        "US10Y", "KR3Y", "VIX", "BTC_KRW", "BUFFETT_US"
+    ]
+    
+    # NestJS 쪽 Redis 키 명명 규칙에 맞추어 Prefix를 알맞게 수정해주세요. (예: "indicator:history:")
+    REDIS_KEY_PREFIX = "indicator:history:"
+    
+    try:
+        for symbol in symbols:
+            key = f"{REDIS_KEY_PREFIX}{symbol}"
+            # LPUSH로 넣었으므로 0번 인덱스가 최신 데이터
+            raw_data = await redis_manager.connection.lindex(key, 0)
+            if raw_data:
+                res[symbol] = json.loads(raw_data)
+    except Exception as e:
+        logger.error(f"Failed to fetch indicators from Redis: {e}")
+        
+    return res
 
 async def trigger_agent_analysis(topic: str, instructions: str) -> str:
     """
@@ -31,7 +49,7 @@ async def trigger_agent_analysis(topic: str, instructions: str) -> str:
         
         graph = create_graph(checkpointer=redis_manager.checkpointer)
         
-        indicators = get_latest_market_indicators()
+        indicators = await get_latest_market_indicators()
         
         prompt_message = f"""
         [지시사항]
